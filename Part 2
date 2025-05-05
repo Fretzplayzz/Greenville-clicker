@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clicker Game Leaderboard</title>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
+    #leaderboard { margin-top: 30px; }
+    button { padding: 10px 20px; font-size: 16px; }
+  </style>
+</head>
+<body>
+  <h1>Clicker Game</h1>
+  <p><strong>Username:</strong> <input type="text" id="username"></p>
+  <p><strong>Score:</strong> <input type="number" id="score"></p>
+  <button onclick="submitScore(document.getElementById('username').value, parseInt(document.getElementById('score').value))">Submit Score</button>
+
+  <div id="leaderboard"></div>
+
+  <script>
+    function submitScore(username, score) {
+      fetch('https://script.google.com/macros/s/AKfycbyDBtqMl9V2fWzNcDrBDUVmKHKxPcaXslbLsgC9qQu_xrLZWgsssokwwZGj4qcC9DeaYQ/exec', {
+        method: 'POST',
+        body: JSON.stringify({ username, score }),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+      .then(res => res.json())
+      .then(data => {
+        console.log('Score submitted:', data);
+        loadLeaderboard();
+      })
+      .catch(err => console.error('Error submitting score:', err));
+    }
+
+    function loadLeaderboard() {
+      fetch('https://script.google.com/macros/s/AKfycbyDBtqMl9V2fWzNcDrBDUVmKHKxPcaXslbLsgC9qQu_xrLZWgsssokwwZGj4qcC9DeaYQ/exec')
+        .then(res => res.json())
+        .then(data => {
+          const leaderboardDiv = document.getElementById('leaderboard');
+          leaderboardDiv.innerHTML = '<h3>Top Players</h3>';
+
+          data.slice(0, 10).forEach((entry, index) => {
+            leaderboardDiv.innerHTML += `<p>${index + 1}. ${entry.username} - ${entry.score}</p>`;
+          });
+        })
+        .catch(err => console.error('Error loading leaderboard:', err));
+    }
+
+    // Load leaderboard on page load
+    window.onload = loadLeaderboard;
+  </script>
+</body>
+</html>
